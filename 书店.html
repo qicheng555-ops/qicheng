@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书香阁 - 网络书店系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+        }
+        
+        nav {
+            background-color: #34495e;
+            padding: 0.5rem;
+        }
+        
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin: 0 1rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            background-color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .book-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+        
+        .book-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .book-image {
+            height: 200px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .book-info {
+            padding: 1rem;
+        }
+        
+        .book-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .book-author {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .book-price {
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: white;
+        }
+        
+        .user-info a {
+            color: white;
+            text-decoration: none;
+            margin-left: 0.5rem;
+        }
+        
+        .admin-controls {
+            background-color: #f39c12;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+        
+        .order-list {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .order-item {
+            border-bottom: 1px solid #eee;
+            padding: 0.5rem 0;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+            margin-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>书香阁网络书店</h1>
+        <div class="user-info">
+            <span id="user-status">游客</span>
+            <a href="#" id="login-link">登录</a>
+            <a href="#" id="register-link">注册</a>
+            <a href="#" id="logout-link" class="hidden">退出</a>
+            <a href="#" id="admin-link" class="hidden">管理</a>
+            <a href="#" id="orders-link" class="hidden">我的订单</a>
+        </div>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#" class="nav-link" data-page="home">首页</a></li>
+            <li><a href="#" class="nav-link" data-page="books">图书浏览</a></li>
+            <li><a href="#" class="nav-link" data-page="about">关于我们</a></li>
+            <li><a href="#" class="nav-link" data-page="contact">联系我们</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <!-- 首页内容 -->
+        <div id="home-page" class="page-content">
+            <h2>欢迎来到书香阁</h2>
+            <p>我们提供各类优质图书，满足您的阅读需求。注册成为会员即可享受购书服务。</p>
+            
+            <h3>热门图书</h3>
+            <div class="book-list">
+                <div class="book-card">
+                    <div class="book-image">封面图片</div>
+                    <div class="book-info">
+                        <h4 class="book-title">JavaScript高级程序设计</h4>
+                        <p class="book-author">作者: Nicholas C. Zakas</p>
+                        <p class="book-price">¥89.00</p>
+                        <a href="#" class="btn view-details" data-book-id="1">查看详情</a>
+                        <a href="#" class="btn btn-success buy-btn hidden" data-book-id="1">加入购物车</a>
+                    </div>
+                </div>
+                
+                <div class="book-card">
+                    <div class="book-image">封面图片</div>
+                    <div class="book-info">
+                        <h4 class="book-title">Python编程:从入门到实践</h4>
+                        <p class="book-author">作者: Eric Matthes</p>
+                        <p class="book-price">¥79.00</p>
+                        <a href="#" class="btn view-details" data-book-id="2">查看详情</a>
+                        <a href="#" class="btn btn-success buy-btn hidden" data-book-id="2">加入购物车</a>
+                    </div>
+                </div>
+                
+                <div class="book-card">
+                    <div class="book-image">封面图片</div>
+                    <div class="book-info">
+                        <h4 class="book-title">活着</h4>
+                        <p class="book-author">作者: 余华</p>
+                        <p class="book-price">¥45.00</p>
+                        <a href="#" class="btn view-details" data-book-id="3">查看详情</a>
+                        <a href="#" class="btn btn-success buy-btn hidden" data-book-id="3">加入购物车</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 图书浏览页面 -->
+        <div id="books-page" class="page-content hidden">
+            <h2>图书列表</h2>
+            <div id="admin-controls" class="admin-controls hidden">
+                <a href="#" class="btn" id="add-book-btn">添加新书</a>
+            </div>
+            
+            <div class="book-list" id="all-books">
+                <!-- 图书将通过JavaScript动态加载 -->
+            </div>
+        </div>
+        
+        <!-- 图书详情页面 -->
+        <div id="book-detail-page" class="page-content hidden">
+            <div class="book-detail">
+                <div style="display: flex; gap: 2rem;">
+                    <div class="book-image" style="width: 300px; height: 400px;">封面大图</div>
+                    <div class="book-info">
+                        <h2 id="detail-title">图书标题</h2>
+                        <p id="detail-author">作者: </p>
+                        <p id="detail-price">价格: </p>
+                        <p id="detail-category">分类: </p>
+                        <p id="detail-stock">库存: </p>
+                        <p id="detail-description">图书简介: </p>
+                        <div id="member-actions" class="hidden">
+                            <input type="number" id="quantity" min="1" value="1" style="width: 60px;">
+                            <a href="#" class="btn btn-success" id="add-to-cart">加入购物车</a>
+                        </div>
+                        <div id="admin-actions" class="hidden">
+                            <a href="#" class="btn" id="edit-book-btn">编辑</a>
+                            <a href="#" class="btn btn-danger" id="delete-book-btn">删除</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 添加/编辑图书表单 -->
+        <div id="book-form-page" class="page-content hidden">
+            <div class="form-container">
+                <h2 id="form-title">添加新书</h2>
+                <form id="book-form">
+                    <input type="hidden" id="book-id">
+                    <div class="form-group">
+                        <label for="title">书名</label>
+                        <input type="text" id="title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="author">作者</label>
+                        <input type="text" id="author" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">价格</label>
+                        <input type="number" id="price" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">分类</label>
+                        <select id="category" required>
+                            <option value="">请选择分类</option>
+                            <option value="文学">文学</option>
+                            <option value="科技">科技</option>
+                            <option value="历史">历史</option>
+                            <option value="经济">经济</option>
+                            <option value="生活">生活</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">库存</label>
+                        <input type="number" id="stock" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">图书简介</label>
+                        <textarea id="description" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="image">封面图片URL</label>
+                        <input type="text" id="image">
+                    </div>
+                    <button type="submit" class="btn">保存</button>
+                    <a href="#" class="btn btn-danger" id="cancel-form">取消</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 登录表单 -->
+        <div id="login-page" class="page-content hidden">
+            <div class="form-container">
+                <h2>用户登录</h2>
+                <form id="login-form">
+                    <div class="form-group">
+                        <label for="login-username">用户名</label>
+                        <input type="text" id="login-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">密码</label>
+                        <input type="password" id="login-password" required>
+                    </div>
+                    <button type="submit" class="btn">登录</button>
+                    <a href="#" class="btn btn-danger" id="cancel-login">取消</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 注册表单 -->
+        <div id="register-page" class="page-content hidden">
+            <div class="form-container">
+                <h2>用户注册</h2>
+                <form id="register-form">
+                    <div class="form-group">
+                        <label for="reg-username">用户名</label>
+                        <input type="text" id="reg-username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">密码</label>
+                        <input type="password" id="reg-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-confirm-password">确认密码</label>
+                        <input type="password" id="reg-confirm-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-email">电子邮箱</label>
+                        <input type="email" id="reg-email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-phone">联系电话</label>
+                        <input type="tel" id="reg-phone">
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-address">收货地址</label>
+                        <textarea id="reg-address" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn">注册</button>
+                    <a href="#" class="btn btn-danger" id="cancel-register">取消</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 购物车页面 -->
+        <div id="cart-page" class="page-content hidden">
+            <h2>我的购物车</h2>
+            <div id="cart-items">
+                <!-- 购物车内容将通过JavaScript动态加载 -->
+                <p>购物车为空</p>
+            </div>
+            <div id="cart-actions" class="hidden">
+                <p>总价: <span id="cart-total">¥0.00</span></p>
+                <a href="#" class="btn btn-success" id="checkout-btn">结算</a>
+                <a href="#" class="btn btn-danger" id="clear-cart-btn">清空购物车</a>
+            </div>
+        </div>
+        
+        <!-- 订单页面 -->
+        <div id="orders-page" class="page-content hidden">
+            <h2>我的订单</h2>
+            <div id="order-list">
+                <!-- 订单将通过JavaScript动态加载 -->
+                <p>暂无订单记录</p>
+            </div>
+        </div>
+        
+        <!-- 管理员页面 -->
+        <div id="admin-page" class="page-content hidden">
+            <h2>管理员控制台</h2>
+            <div class="admin-controls">
+                <a href="#" class="btn" id="manage-books-btn">管理图书</a>
+                <a href="#" class="btn" id="manage-orders-btn">管理订单</a>
+                <a href="#" class="btn" id="manage-users-btn">管理用户</a>
+            </div>
+            
+            <div id="admin-content">
+                <!-- 管理员内容将通过JavaScript动态加载 -->
+                <p>请选择管理选项</p>
+            </div>
+        </div>
+        
+        <!-- 关于我们页面 -->
+        <div id="about-page" class="page-content hidden">
+            <h2>关于书香阁</h2>
+            <p>书香阁成立于2010年，致力于为广大读者提供优质的图书和服务。</p>
+            <p>我们的使命是传播知识，丰富人们的精神生活。</p>
+        </div>
+        
+        <!-- 联系我们页面 -->
+        <div id="contact-page" class="page-content hidden">
+            <h2>联系我们</h2>
+            <p>客服电话: 400-123-4567</p>
+            <p>邮箱: service@shuxiangge.com</p>
+            <p>地址: 北京市海淀区图书大厦15层</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2023 书香阁网络书店 版权所有</p>
+    </footer>
+    
+    <script>
+        // 模拟数据库
+        let books = [
+            { id: 1, title: "JavaScript高级程序设计", author: "Nicholas C. Zakas", price: 89.00, category: "科技", stock: 50, description: "本书详细讲解了JavaScript语言的核心概念，适合有一定基础的开发者阅读。" },
+            { id: 2, title: "Python编程:从入门到实践", author: "Eric Matthes", price: 79.00, category: "科技", stock: 30, description: "一本适合初学者的Python编程入门书籍，通过实践项目学习编程。" },
+            { id: 3, title: "活着", author: "余华", price: 45.00, category: "文学", stock: 100, description: "讲述了一个普通中国农民的一生，反映了中国社会的变迁。" },
+            { id: 4, title: "人类简史", author: "尤瓦尔·赫拉利", price: 68.00, category: "历史", stock: 40, description: "从认知革命到科学革命，讲述人类发展的大历史。" },
+            { id: 5, title: "经济学原理", author: "曼昆", price: 99.00, category: "经济", stock: 25, description: "经济学入门经典教材，系统介绍经济学基本原理。" }
+        ];
+        
+        let users = [
+            { id: 1, username: "admin", password: "admin123", email: "admin@example.com", role: "admin", phone: "13800138000", address: "北京市" },
+            { id: 2, username: "user1", password: "user123", email: "user1@example.com", role: "member", phone: "13900139000", address: "上海市" }
+        ];
+        
+        let orders = [
+            { id: 1, userId: 2, date: "2023-05-01", status: "已完成", items: [
+                { bookId: 1, quantity: 1, price: 89.00 },
+                { bookId: 3, quantity: 2, price: 45.00 }
+            ]},
+            { id: 2, userId: 2, date: "2023-05-15", status: "已发货", items: [
+                { bookId: 2, quantity: 1, price: 79.00 }
+            ]}
+        ];
+        
+        // 当前用户状态
+        let currentUser = null;
+        let cart = [];
+        
+        // DOM元素
+        const pageContents = document.querySelectorAll('.page-content');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const loginLink = document.getElementById('login-link');
+        const registerLink = document.getElementById('register-link');
+        const logoutLink = document.getElementById('logout-link');
+        const adminLink = document.getElementById('admin-link');
+        const ordersLink = document.getElementById('orders-link');
+        const userStatus = document.getElementById('user-status');
+        const allBooksContainer = document.getElementById('all-books');
+        const bookForm = document.getElementById('book-form');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const cartItemsContainer = document.getElementById('cart-items');
+        const cartActions = document.getElementById('cart-actions');
+        const cartTotal = document.getElementById('cart-total');
+        const orderListContainer = document.getElementById('order-list');
+        const adminContent = document.getElementById('admin-content');
+        
+        // 初始化页面
+        function init() {
+            showPage('home');
+            renderBookList();
+            updateUserStatus();
+            
+            // 导航链接事件
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const page = link.getAttribute('data-page');
+                    showPage(page);
+                });
+            });
+            
+            // 登录/注册链接事件
+            loginLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('login');
+            });
+            
+            registerLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('register');
+            });
+            
+            logoutLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                logout();
+            });
+            
+            adminLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('admin');
+            });
+            
+            ordersLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('orders');
+            });
+            
+            // 查看详情按钮事件
+            document.addEventListener('click', (e) => {
+                if (e.target.classList.contains('view-details')) {
+                    e.preventDefault();
+                    const bookId = parseInt(e.target.getAttribute('data-book-id'));
+                    showBookDetail(bookId);
+                }
+                
+                if (e.target.classList.contains('buy-btn')) {
+                    e.preventDefault();
+                    const bookId = parseInt(e.target.getAttribute('data-book-id'));
+                    addToCart(bookId, 1);
+                }
+            });
+            
+            // 图书表单提交
+            bookForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                saveBook();
+            });
+            
+            document.getElementById('cancel-form').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('books');
+            });
+            
+            // 登录表单提交
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('login-username').value;
+                const password = document.getElementById('login-password').value;
+                login(username, password);
+            });
+            
+            document.getElementById('cancel-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('home');
+            });
+            
+            // 注册表单提交
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const username = document.getElementById('reg-username').value;
+                const password = document.getElementById('reg-password').value;
+                const confirmPassword = document.getElementById('reg-confirm-password').value;
+                const email = document.getElementById('reg-email').value;
+                const phone = document.getElementById('reg-phone').value;
+                const address = document.getElementById('reg-address').value;
+                
+                if (password !== confirmPassword) {
+                    alert('两次输入的密码不一致');
+                    return;
+                }
+                
+                register(username, password, email, phone, address);
+            });
+            
+            document.getElementById('cancel-register').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('home');
+            });
+            
+            // 购物车事件
+            document.getElementById('add-to-cart').addEventListener('click', (e) => {
+                e.preventDefault();
+                const quantity = parseInt(document.getElementById('quantity').value);
+                const bookId = parseInt(document.querySelector('#book-detail-page').getAttribute('data-book-id'));
+                addToCart(bookId, quantity);
+            });
+            
+            document.getElementById('checkout-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                checkout();
+            });
+            
+            document.getElementById('clear-cart-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                clearCart();
+            });
+            
+            // 管理员事件
+            document.getElementById('add-book-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showBookForm();
+            });
+            
+            document.getElementById('manage-books-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('books');
+            });
+            
+            document.getElementById('manage-orders-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                renderAdminOrders();
+            });
+            
+            document.getElementById('manage-users-btn').addEventListener('click', (e) => {
+                e.preventDefault();
+                renderAdminUsers();
+            });
+        }
+        
+        // 显示页面
+        function showPage(page) {
+            pageContents.forEach(content => content.classList.add('hidden'));
+            
+            switch(page) {
+                case 'home':
+                    document.getElementById('home-page').classList.remove('hidden');
+                    break;
+                case 'books':
+                    document.getElementById('books-page').classList.remove('hidden');
+                    renderBookList();
+                    break;
+                case 'about':
+                    document.getElementById('about-page').classList.remove('hidden');
+                    break;
+                case 'contact':
+                    document.getElementById('contact-page').classList.remove('hidden');
+                    break;
+                case 'login':
+                    document.getElementById('login-page').classList.remove('hidden');
+                    break;
+                case 'register':
+                    document.getElementById('register-page').classList.remove('hidden');
+                    break;
+                case 'cart':
+                    document.getElementById('cart-page').classList.remove('hidden');
+                    renderCart();
+                    break;
+                case 'orders':
+                    document.getElementById('orders-page').classList.remove('hidden');
+                    renderUserOrders();
+                    break;
+                case 'admin':
+                    document.getElementById('admin-page').classList.remove('hidden');
+                    document.getElementById('admin-content').innerHTML = '<p>请选择管理选项</p>';
+                    break;
+                default:
+                    document.getElementById('home-page').classList.remove('hidden');
+            }
+        }
+        
+        // 显示图书详情
+        function showBookDetail(bookId) {
+            const book = books.find(b => b.id === bookId);
+            if (!book) return;
+            
+            document.getElementById('detail-title').textContent = book.title;
+            document.getElementById('detail-author').textContent = `作者: ${book.author}`;
+            document.getElementById('detail-price').textContent = `价格: ¥${book.price.toFixed(2)}`;
+            document.getElementById('detail-category').textContent = `分类: ${book.category}`;
+            document.getElementById('detail-stock').textContent = `库存: ${book.stock}`;
+            document.getElementById('detail-description').textContent = `图书简介: ${book.description}`;
+            
+            document.querySelector('#book-detail-page').setAttribute('data-book-id', bookId);
+            
+            // 显示/隐藏操作按钮
+            document.getElementById('member-actions').classList.add('hidden');
+            document.getElementById('admin-actions').classList.add('hidden');
+            
+            if (currentUser) {
+                if (currentUser.role === 'admin') {
+                    document.getElementById('admin-actions').classList.remove('hidden');
+                } else {
+                    document.getElementById('member-actions').classList.remove('hidden');
+                }
+            }
+            
+            pageContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById('book-detail-page').classList.remove('hidden');
+        }
+        
+        // 显示图书表单
+        function showBookForm(bookId = null) {
+            if (bookId) {
+                // 编辑模式
+                const book = books.find(b => b.id === bookId);
+                if (book) {
+                    document.getElementById('form-title').textContent = '编辑图书';
+                    document.getElementById('book-id').value = book.id;
+                    document.getElementById('title').value = book.title;
+                    document.getElementById('author').value = book.author;
+                    document.getElementById('price').value = book.price;
+                    document.getElementById('category').value = book.category;
+                    document.getElementById('stock').value = book.stock;
+                    document.getElementById('description').value = book.description;
+                    document.getElementById('image').value = book.image || '';
+                }
+            } else {
+                // 添加模式
+                document.getElementById('form-title').textContent = '添加新书';
+                document.getElementById('book-id').value = '';
+                document.getElementById('book-form').reset();
+            }
+            
+            pageContents.forEach(content => content.classList.add('hidden'));
+            document.getElementById('book-form-page').classList.remove('hidden');
+        }
+        
+        // 渲染图书列表
+        function renderBookList() {
+            allBooksContainer.innerHTML = '';
+            
+            books.forEach(book => {
+                const bookCard = document.createElement('div');
+                bookCard.className = 'book-card';
+                bookCard.innerHTML = `
+                    <div class="book-image">封面图片</div>
+                    <div class="book-info">
+                        <h4 class="book-title">${book.title}</h4>
+                        <p class="book-author">作者: ${book.author}</p>
+                        <p class="book-price">¥${book.price.toFixed(2)}</p>
+                        <a href="#" class="btn view-details" data-book-id="${book.id}">查看详情</a>
+                        ${currentUser && currentUser.role !== 'admin' ? `<a href="#" class="btn btn-success buy-btn" data-book-id="${book.id}">加入购物车</a>` : ''}
+                        ${currentUser && currentUser.role === 'admin' ? `
+                            <a href="#" class="btn edit-btn" data-book-id="${book.id}">编辑</a>
+                            <a href="#" class="btn btn-danger delete-btn" data-book-id="${book.id}">删除</a>
+                        ` : ''}
+                    </div>
+                `;
+                
+                allBooksContainer.appendChild(bookCard);
+            });
+            
+            // 添加编辑和删除按钮事件
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bookId = parseInt(btn.getAttribute('data-book-id'));
+                    showBookForm(bookId);
+                });
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bookId = parseInt(btn.getAttribute('data-book-id'));
+                    if (confirm('确定要删除这本图书吗？')) {
+                        deleteBook(bookId);
+                    }
+                });
+            });
+            
+            // 显示/隐藏管理员控制
+            document.getElementById('admin-controls').classList.toggle('hidden', !(currentUser && currentUser.role === 'admin'));
+        }
+        
+        // 保存图书
+        function saveBook() {
+            const id = document.getElementById('book-id').value;
+            const title = document.getElementById('title').value;
+            const author = document.getElementById('author').value;
+            const price = parseFloat(document.getElementById('price').value);
+            const category = document.getElementById('category').value;
+            const stock = parseInt(document.getElementById('stock').value);
+            const description = document.getElementById('description').value;
+            const image = document.getElementById('image').value;
+            
+            if (id) {
+                // 更新图书
+                const index = books.findIndex(b => b.id === parseInt(id));
+                if (index !== -1) {
+                    books[index] = { ...books[index], title, author, price, category, stock, description, image };
+                }
+            } else {
+                // 添加新书
+                const newId = books.length > 0 ? Math.max(...books.map(b => b.id)) + 1 : 1;
+                books.push({ id: newId, title, author, price, category, stock, description, image });
+            }
+            
+            showPage('books');
+        }
+        
+        // 删除图书
+        function deleteBook(bookId) {
+            books = books.filter(b => b.id !== bookId);
+            renderBookList();
+        }
+        
+        // 用户登录
+        function login(username, password) {
+            const user = users.find(u => u.username === username && u.password === password);
+            if (user) {
+                currentUser = user;
+                updateUserStatus();
+                showPage('home');
+                alert('登录成功！');
+            } else {
+                alert('用户名或密码错误！');
+            }
+        }
+        
+        // 用户注册
+        function register(username, password, email, phone, address) {
+            if (users.some(u => u.username === username)) {
+                alert('用户名已存在！');
+                return;
+            }
+            
+            const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
+            const newUser = {
+                id: newId,
+                username,
+                password,
+                email,
+                role: 'member',
+                phone,
+                address
+            };
+            
+            users.push(newUser);
+            currentUser = newUser;
+            updateUserStatus();
+            showPage('home');
+            alert('注册成功！');
+        }
+        
+        // 用户退出
+        function logout() {
+            currentUser = null;
+            updateUserStatus();
+            showPage('home');
+        }
+        
+        // 更新用户状态显示
+        function updateUserStatus() {
+            if (currentUser) {
+                userStatus.textContent = currentUser.username;
+                loginLink.classList.add('hidden');
+                registerLink.classList.add('hidden');
+                logoutLink.classList.remove('hidden');
+                
+                if (currentUser.role === 'admin') {
+                    adminLink.classList.remove('hidden');
+                } else {
+                    adminLink.classList.add('hidden');
+                }
+                
+                ordersLink.classList.remove('hidden');
+                
+                // 显示购买按钮
+                document.querySelectorAll('.buy-btn').forEach(btn => {
+                    if (currentUser.role !== 'admin') {
+                        btn.classList.remove('hidden');
+                    }
+                });
+            } else {
+                userStatus.textContent = '游客';
+                loginLink.classList.remove('hidden');
+                registerLink.classList.remove('hidden');
+                logoutLink.classList.add('hidden');
+                adminLink.classList.add('hidden');
+                ordersLink.classList.add('hidden');
+                
+                // 隐藏购买按钮
+                document.querySelectorAll('.buy-btn').forEach(btn => {
+                    btn.classList.add('hidden');
+                });
+            }
+        }
+        
+        // 添加到购物车
+        function addToCart(bookId, quantity) {
+            const book = books.find(b => b.id === bookId);
+            if (!book) return;
+            
+            const existingItem = cart.find(item => item.bookId === bookId);
+            if (existingItem) {
+                existingItem.quantity += quantity;
+            } else {
+                cart.push({
+                    bookId,
+                    quantity,
+                    price: book.price,
+                    title: book.title
+                });
+            }
+            
+            alert('已添加到购物车！');
+            renderCart();
+        }
+        
+        // 渲染购物车
+        function renderCart() {
+            cartItemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p>购物车为空</p>';
+                cartActions.classList.add('hidden');
+                return;
+            }
+            
+            let total = 0;
+            
+            cart.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'order-item';
+                itemElement.innerHTML = `
+                    <h4>${item.title}</h4>
+                    <p>单价: ¥${item.price.toFixed(2)}</p>
+                    <p>数量: ${item.quantity}</p>
+                    <p>小计: ¥${(item.price * item.quantity).toFixed(2)}</p>
+                    <a href="#" class="btn btn-danger remove-item" data-book-id="${item.bookId}">移除</a>
+                `;
+                cartItemsContainer.appendChild(itemElement);
+                
+                total += item.price * item.quantity;
+            });
+            
+            cartTotal.textContent = `¥${total.toFixed(2)}`;
+            cartActions.classList.remove('hidden');
+            
+            // 添加移除按钮事件
+            document.querySelectorAll('.remove-item').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const bookId = parseInt(btn.getAttribute('data-book-id'));
+                    removeFromCart(bookId);
+                });
+            });
+        }
+        
+        // 从购物车移除
+        function removeFromCart(bookId) {
+            cart = cart.filter(item => item.bookId !== bookId);
+            renderCart();
+        }
+        
+        // 清空购物车
+        function clearCart() {
+            if (confirm('确定要清空购物车吗？')) {
+                cart = [];
+                renderCart();
+            }
+        }
+        
+        // 结算
+        function checkout() {
+            if (cart.length === 0) return;
+            
+            // 检查库存
+            for (const item of cart) {
+                const book = books.find(b => b.id === item.bookId);
+                if (book.stock < item.quantity) {
+                    alert(`《${book.title}》库存不足，当前库存: ${book.stock}`);
+                   
